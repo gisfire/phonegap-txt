@@ -15,31 +15,35 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet-src.js"></script>
 
-    <!--<link rel="stylesheet" href="js/leaflet/leaflet.css" />
-    <script src="js/leaflet/leaflet.js"></script>-->
+    <link rel="stylesheet" href="js/leaflet/lib/leaflet.css" />
+    <script src="js/leaflet/lib/leaflet.js"></script>
     <script type="text/javascript" src="js/leaflet/lib/Leaflet.GoogleMutant.js"></script>
     <style>
-        #map {
-            width: 600px;
-            height: 400px;
+         #map {
+             width: 600px;
+             height: 400px;
         }
+
+      
     </style>
 
     <style>
         body {
-            padding: 0;
-            margin: 0;
+             padding: 0;
+             margin: 0;
+
         }
 
         html, body, #map {
-            height: 100vh;
-            width: 100vw;
+             height: 100vh;
+             width: 100vw;
         }
+
+       
     </style>
 </head>
 <body>
 
-    Leaflet's Google Mutant demo
 
     <div id="map" class="map"></div>
 
@@ -54,12 +58,12 @@
 		var roadMutant = L.gridLayer.googleMutant({
 			maxZoom: 24,
 			type:'roadmap'
-		}).addTo(map);
+		});
 
 		var satMutant = L.gridLayer.googleMutant({
 			maxZoom: 24,
 			type:'satellite'
-		});
+		}).addTo(map);
 
 		var terrainMutant = L.gridLayer.googleMutant({
 			maxZoom: 24,
@@ -101,9 +105,9 @@
 
 
 
-		L.control.layers({
+        L.control.layers({
+            Aerial: satMutant,
 			Roadmap: roadMutant,
-			Aerial: satMutant,
 			Terrain: terrainMutant,
 			Hybrid: hybridMutant,
 			Styles: styleMutant,
@@ -112,24 +116,25 @@
 		}, {}, {
 			collapsed: false
 		}).addTo(map);
+        
 
-		var kyiv = [50.5, 30.5],
-			lnd = [51.51, -0.12],
-			sf = [37.77, -122.42],
-			dc = [38.91, -77.04],
-			trd = [63.41, 10.41],
-			madBounds = [[40.70, -4.19], [40.12, -3.31]],
-			mad = [40.40, -3.7];
+		//var kyiv = [50.5, 30.5],
+		//	lnd = [51.51, -0.12],
+		//	sf = [37.77, -122.42],
+		//	dc = [38.91, -77.04],
+		//	trd = [63.41, 10.41],
+		//	madBounds = [[40.70, -4.19], [40.12, -3.31]],
+		//	mad = [40.40, -3.7];
 
 
-		var marker1 = L.marker(kyiv).addTo(map),
-			marker2 = L.marker(lnd).addTo(map),
-			marker3 = L.marker(dc).addTo(map),
-			marker4 = L.marker(sf).addTo(map),
-			marker5 = L.marker(trd).addTo(map),
-			marker6 = L.marker(mad).addTo(map);
+		//var marker1 = L.marker(kyiv).addTo(map),
+		//	marker2 = L.marker(lnd).addTo(map),
+		//	marker3 = L.marker(dc).addTo(map),
+		//	marker4 = L.marker(sf).addTo(map),
+		//	marker5 = L.marker(trd).addTo(map),
+		//	marker6 = L.marker(mad).addTo(map);
 
-		var rectangle = L.rectangle(madBounds).addTo(map);
+		//var rectangle = L.rectangle(madBounds).addTo(map);
 
 //    map.addLayer(osm);
 //    map.addLayer(kittens);
@@ -162,13 +167,14 @@
 	}
 
 	function onLocationError(e) {
-		alert(e.message);
+	    alert(e.message);
 	}
 
 	map.on('locationfound', onLocationFound);
 	map.on('locationerror', onLocationError);
 
-	map.locate({setView: true, maxZoom: 16});
+    map.locate({setView: true, maxZoom: 16});
+
     </script>
 
 

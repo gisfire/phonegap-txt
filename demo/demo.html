@@ -1,145 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 <head>
-	<title>Leaflet debug page</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="content-language" content="zh">
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <title>Baidu Map on Leaflet.js</title>
+    <meta name="description" content="Baidu Map on Leaflet.js : 墨卡托投影 ( Mercator Projection ) , 坐标偏移">
+    <meta name="keywords" content="中国, 上海, 雾霾, 地图, 大数据, 可视化, 墨卡托投影, BigData, Map, SRS, Mercator Projection">
+    <link rel="canonical" href="/map/leaflet-baidu/">
 
-<!--  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY" async defer></script> -->
-	<script src="https://maps.googleapis.com/maps/api/js" async defer></script>
-
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!--  <link rel="stylesheet" href="../Leaflet/dist/leaflet.css" />
-	<script type="text/javascript" src="../Leaflet/dist/leaflet-src.js"></script>-->
-
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
-	<script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet-src.js"></script>
-
-	<script type="text/javascript" src="js/leaflet/lib/Leaflet.GoogleMutant.js"></script>
-	<style>
-	#map {
-/*    margin: 32px; */
-/*    width: auto; */
-/*    overflow: visible; */
-		width: calc( 100vw - 64px );
-		height: calc( 100vh - 64px );
-	}
-	body { margin: 0 }
-
-	</style>
 </head>
+<header>
+    <link  href="js/leaflet/lib/leaflet.css" rel="stylesheet" />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</header>
+
 <body>
+    <div id="map"></div>
+    <script src="js/leaflet/lib/leaflet-src.js"></script>
+    <script src="js/leaflet/lib/leaflet-baidu.js"></script>
+    <script src="js/leaflet/lib/baiduMapAPI-2.0-min.js"></script>
+    <script src="js/coordtransform/coordtransform.js"></script>
+    <!-- <script type="javascript">window.BMAP_AUTHENTIC_KEY = "<your key>";</script> -->
+    <script>
+    var options = {
+      crs: L.CRS.EPSGB3857,
+      center: [31.207391, 121.608203],
+      zoom: 13
+    };
 
-	Leaflet's Google Mutant demo
-
-	<div id="map" class="map"></div>
-
-	<script type="text/javascript">
-
-		var mapopts =  {
-//      zoomSnap: 0.1
-		};
-
-		var map = L.map('map', mapopts).setView([0,0],0);
-
-		var roadMutant = L.gridLayer.googleMutant({
-			maxZoom: 24,
-			type:'roadmap'
-		}).addTo(map);
-
-		var satMutant = L.gridLayer.googleMutant({
-			maxZoom: 24,
-			type:'satellite'
-		});
-
-		var terrainMutant = L.gridLayer.googleMutant({
-			maxZoom: 24,
-			type:'terrain'
-		});
-
-		var hybridMutant = L.gridLayer.googleMutant({
-			maxZoom: 24,
-			type:'hybrid'
-		});
-
-		var styleMutant = L.gridLayer.googleMutant({
-			styles: [
-				{elementType: 'labels', stylers: [{visibility: 'off'}]},
-				{featureType: 'water', stylers: [{color: '#444444'}]},
-				{featureType: 'landscape', stylers: [{color: '#eeeeee'}]},
-				{featureType: 'road', stylers: [{visibility: 'off'}]},
-				{featureType: 'poi', stylers: [{visibility: 'off'}]},
-				{featureType: 'transit', stylers: [{visibility: 'off'}]},
-				{featureType: 'administrative', stylers: [{visibility: 'off'}]},
-				{featureType: 'administrative.locality', stylers: [{visibility: 'off'}]}
-			],
-			maxZoom: 24,
-			type:'roadmap'
-		});
-
-		var trafficMutant = L.gridLayer.googleMutant({
-			maxZoom: 24,
-			type:'roadmap'
-		});
-		trafficMutant.addGoogleLayer('TrafficLayer');
+    var Normal = new L.TileLayer.BaiduLayer("Normal.Map");
+    
 
 
-		var transitMutant = L.gridLayer.googleMutant({
-			maxZoom: 24,
-			type:'roadmap'
-		});
-		transitMutant.addGoogleLayer('TransitLayer');
+    var overlayMaps = {
+        Office: L.marker(L.latLng(31.207391, 121.608203)).bindPopup('I\'m working Shanghai in SAP Labs!')
+    };
+
+    //options.layers = [baseMaps.Normal, overlayMaps.Office];
+    var map = L.map('map', options);
+    Normal.addTo(map);
+
+    //GPS定位
+    function onLocationFound(e) {
+        var bd09togcj02 = coordtransform.gcj02tobd09(e.latlng.lng, e.latlng.lat);
+        var radius = e.accuracy / 2;
 
 
+        L.marker([bd09togcj02[1]-0.0016, bd09togcj02[0]+0.006]).addTo(map)
+			.bindPopup("You are within " + radius + " meters from this point").openPopup();
+        L.circle(e.latlng, radius).addTo(map);
+        var bd09togcj02 = coordtransform.gcj02tobd09(116.404, 39.915);
+        console.log(bd09togcj02);
+    }
 
-		L.control.layers({
-			Roadmap: roadMutant,
-			Aerial: satMutant,
-			Terrain: terrainMutant,
-			Hybrid: hybridMutant,
-			Styles: styleMutant,
-			Traffic: trafficMutant,
-			Transit: transitMutant
-		}, {}, {
-			collapsed: false
-		}).addTo(map);
+    function onLocationError(e) {
+        alert(e.message);
+    }
 
-		var kyiv = [50.5, 30.5],
-			lnd = [51.51, -0.12],
-			sf = [37.77, -122.42],
-			dc = [38.91, -77.04],
-			trd = [63.41, 10.41],
-			madBounds = [[40.70, -4.19], [40.12, -3.31]],
-			mad = [40.40, -3.7];
+    map.on('locationfound', onLocationFound);
+    map.on('locationerror', onLocationError);
 
+    map.locate({ setView: true, maxZoom: 16 });
 
-		var marker1 = L.marker(kyiv).addTo(map),
-			marker2 = L.marker(lnd).addTo(map),
-			marker3 = L.marker(dc).addTo(map),
-			marker4 = L.marker(sf).addTo(map),
-			marker5 = L.marker(trd).addTo(map),
-			marker6 = L.marker(mad).addTo(map);
-
-		var rectangle = L.rectangle(madBounds).addTo(map);
-
-//    map.addLayer(osm);
-//    map.addLayer(kittens);
-//    map.addLayer(debug);
-
-		var grid = L.gridLayer({
-			attribution: 'Grid Layer',
-//      tileSize: L.point(150, 80),
-//      tileSize: tileSize
-		});
-
-		grid.createTile = function (coords) {
-			var tile = L.DomUtil.create('div', 'tile-coords');
-			tile.innerHTML = [coords.x, coords.y, coords.z].join(', ');
-
-			return tile;
-		};
-
-		map.addLayer(grid);
-
-	</script>
+    //L.control.layers(baseMaps, overlayMaps).addTo(map);
+    </script>
 </body>
 </html>
