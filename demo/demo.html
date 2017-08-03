@@ -1,16 +1,16 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="content-language" content="zh">
     <meta name=viewport content="width=device-width, initial-scale=1">
     <title>Baidu Map on Leaflet.js</title>
-    <meta name="description" content="Baidu Map on Leaflet.js : ī����ͶӰ ( Mercator Projection ) , ����ƫ��">
-    <meta name="keywords" content="�й�, �Ϻ�, ����, ��ͼ, ������, ���ӻ�, ī����ͶӰ, BigData, Map, SRS, Mercator Projection">
+    <meta name="description" content="Baidu Map on Leaflet.js : ī����ͶӰ ( Mercator Projection )">
+    <meta name="keywords" content="BigData, Map, SRS, Mercator Projection">
     <link rel="canonical" href="/map/leaflet-baidu/">
 
 </head>
-<header>
+<head>
     <link  href="js/leaflet/lib/leaflet.css" rel="stylesheet" />
     <style>
         html, body {
@@ -23,16 +23,47 @@
             height: 100%;
         }
     </style>
-</header>
+</head>
 
 <body>
     <div id="map"></div>
+    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
     <script src="js/leaflet/lib/leaflet-src.js"></script>
     <script src="js/leaflet/lib/leaflet-baidu.js"></script>
     <script src="js/leaflet/lib/baiduMapAPI-2.0-min.js"></script>
     <script src="js/coordtransform/coordtransform.js"></script>
     <!-- <script type="javascript">window.BMAP_AUTHENTIC_KEY = "<your key>";</script> -->
     <script>
+
+        // 等待PhoneGap加载
+        document.addEventListener("deviceready", onDeviceReady, false);
+
+        // 加载完成
+        function onDeviceReady() {
+            navigator.geolocation.getCurrentPosition(onSuccess, onError, { maximumAge: 3000, timeout: 100000, enableHighAccuracy: true });
+        }
+
+        // onSuccess 回调函数
+        //  接收包含当前地理位置坐标信息的Position对象
+        function onSuccess(position) {
+            alert(position.coords.latitude);
+            var element = document.getElementById('geolocation');
+            element.innerHTML = '纬度: ' + position.coords.latitude + '<br />' +
+                                '经度: ' + position.coords.longitude + '<br />' +
+                                '海拔高度: ' + position.coords.altitude + '<br />' +
+                                '精确度: ' + position.coords.accuracy + '<br />' +
+                                '海拔高度精确度: ' + position.coords.altitudeAccuracy + '<br />' +
+                                '运动方向: ' + position.coords.heading + '<br />' +
+                                '速度: ' + position.coords.speed + '<br />' +
+                                '时间戳: ' + new Date(position.timestamp) + '<br />';
+        }
+
+        // onError 回调函数， 接收包含具体错误信息的PositionError 对象
+        function onError(error) {
+            alert('错误代码: ' + error.code + '\n' + '详细信息: ' + error.message + '\n');
+        }
+
+
     var options = {
       crs: L.CRS.EPSGB3857,
       center: [31.207391, 121.608203],
@@ -51,7 +82,7 @@
     var map = L.map('map', options);
     Normal.addTo(map);
 
-    //GPS��λ
+    //GPS定位
     function onLocationFound(e) {
         var bd09togcj02 = coordtransform.gcj02tobd09(e.latlng.lng, e.latlng.lat);
         var radius = e.accuracy / 2;
